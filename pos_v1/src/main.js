@@ -1,6 +1,5 @@
 //TODO: Please write code in this file.
 function printInventory(inputs) {
-  console.log("***<没钱赚商店>购物清单***");
   var item = loadAllItems();
   var promotion = loadPromotions();
   var output = [{sum:0,promotion:false,pro_sum:0,total:0},
@@ -11,6 +10,8 @@ function printInventory(inputs) {
                          {sum:0,promotion:false,pro_sum:0,total:0}];
   var total_price = 0;
   var save_price = 0;
+  var string_out;
+  var string_pro;
   for (var i=0;i<item.length;i++) {
     for (var j=0;j<inputs.length;j++) {
       if (inputs[j].indexOf("-")!=-1) {
@@ -39,23 +40,30 @@ function printInventory(inputs) {
       output[i].total = item[i].price * (output[i].sum-output[i].pro_sum);
       save_price = save_price+item[i].price*output[i].pro_sum;
       total_price = total_price+output[i].total;
-      console.log("名称:"+item[i].name+",数量:"+output[i].sum+item[i].unit+",单价:"+parseFloat(item[i].price).toFixed(2)+"(元),小计:"+parseFloat(output[i].total).toFixed(2)+"(元)");
+      if (typeof(string_out)=="undefined") {
+        string_out = "名称："+item[i].name+"，数量："+output[i].sum+item[i].unit+"，单价："+parseFloat(item[i].price).toFixed(2)+"(元)，小计："+parseFloat(output[i].total).toFixed(2)+"(元)";
+      }
+      else {
+        string_out = string_out+"\n"+"名称："+item[i].name+"，数量："+output[i].sum+item[i].unit+"，单价："+parseFloat(item[i].price).toFixed(2)+"(元)，小计："+parseFloat(output[i].total).toFixed(2)+"(元)";
+      }
     }
   }
 
-  console.log("-----------------------");
-  console.log("挥泪赠送商品:");
+
+
   for(i=0;i<item.length;i++) {
     if (output[i].pro_sum>0) {
-      console.log("名称:"+item[i].name+",数量:"+output[i].pro_sum+item[i].unit);
+      if (typeof(string_pro)=="undefined") {
+        string_pro = "名称："+item[i].name+"，数量："+output[i].pro_sum+item[i].unit;
+      }
+      else {
+        string_pro = string_pro+"\n"+"名称："+item[i].name+"，数量："+output[i].pro_sum+item[i].unit;
+      }
     }
   }
 
-  console.log("-----------------------");
-  console.log("总计:"+parseFloat(total_price).toFixed(2)+"(元)");
-  console.log("节省:"+parseFloat(save_price).toFixed(2)+"(元)")
-  console.log("***********************")
 
+  console.log("***<没钱赚商店>购物清单***\n"+string_out+"\n----------------------\n"+"挥泪赠送商品：\n"+string_pro+"\n----------------------\n"+"总计："+parseFloat(total_price).toFixed(2)+"(元)\n"+"节省："+parseFloat(save_price).toFixed(2)+"(元)\n"+"**********************");
 }
 
 var inputs = ["ITEM000001",
