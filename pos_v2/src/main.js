@@ -34,30 +34,24 @@ shopping_cart.prototype.compare = function(item) {
   if (this.count()>0) {
     for (var i=0;i<this.count();i++) {
       if (item.name == this.collection[i].name) {
-        return i;
+        this.collection[i].amount++;
+        return 1;
       }
     }
   }
   else {
-    return -1;
+    this.add(item);
   }
 }
 
 function GetInput(inputs,shopping_cart) {
   var all_item = loadAllItems();
   var new_item = new LineItem();
-  var temp = -1;
   for (var i=0;i<inputs.length;i++) {
     new_item = CompareItem(inputs[i],all_item);
-    temp = shopping_cart.compare(new_item);
-    if (temp == -1) {
-      shopping_cart.add(new_item);
-    }
-    else {
-      console.log(shopping_cart.collection[temp]);
-      //shopping_cart.collection[temp].amount++;
-    }
+    shopping_cart.compare(new_item);
   }
+  console.log(shopping_cart);
 }
 
 function CompareItem(input,all_item) {
