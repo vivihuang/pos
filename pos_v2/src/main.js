@@ -31,46 +31,47 @@ shopping_cart.prototype.count = function() {
 }
 
 shopping_cart.prototype.compare = function(item) {
-  for (var i=0;i<shopping_cart.count();i++) {
-    if (item.name == shopping_cart[i].name) {
-      return i;
+  if (this.count()>0) {
+    for (var i=0;i<this.count();i++) {
+      if (item.name == this.collection[i].name) {
+        return i;
+      }
     }
-    else if (i == shopping_cart.count()-1) {
-      return -1;
-    }
+  }
+  else {
+    return -1;
   }
 }
 
-function GetInput(inputs) {
+function GetInput(inputs,shopping_cart) {
   var all_item = loadAllItems();
   var new_item = new LineItem();
-  var temp = 0;
+  var temp = -1;
   for (var i=0;i<inputs.length;i++) {
-    new_item = CompareItem(inputs[i],origin_item);
+    new_item = CompareItem(inputs[i],all_item);
     temp = shopping_cart.compare(new_item);
     if (temp == -1) {
       shopping_cart.add(new_item);
     }
     else {
-      shopping_cart[temp].amount++;
+      console.log(shopping_cart.collection[temp]);
+      //shopping_cart.collection[temp].amount++;
     }
   }
 }
 
 function CompareItem(input,all_item) {
-  var origin_item = new Item;
   var new_item = new LineItem;
   var count = 1;
   if (input.indexOf("-")!=-1) {
-    input = input.substring(0,input.indexOf("-"));
     count = input.substring(input.indexOf("-")+1);
+    input = input.substring(0,input.indexOf("-"));
   }
   for (var i=0;i<all_item.length;i++) {
-    origin_item = Item(all_item[i]);
-    if (input == origin_item.barcode) {
-      new_item.name = origin_item.name;
-      new_item.price = origin_item.price;
-      new_item.unit = origin_item.unit;
+    if (input == all_item[i].barcode) {
+      new_item.name = all_item[i].name;
+      new_item.price = all_item[i].price;
+      new_item.unit = all_item[i].unit;
       new_item.amount = count;
       break;
     }
@@ -89,3 +90,6 @@ var inputs = [
               'ITEM000005',
               'ITEM000005'
               ];
+var cart = new shopping_cart();
+GetInput(inputs,cart);
+//console.log(cart);
