@@ -35,13 +35,11 @@ shopping_cart.prototype.compare = function(item) {
     for (var i=0;i<this.count();i++) {
       if (item.name == this.collection[i].name) {
         this.collection[i].amount++;
-        return 1;
+        return;
       }
     }
   }
-  else {
-    this.add(item);
-  }
+  this.add(item);
 }
 
 function GetInput(inputs,shopping_cart) {
