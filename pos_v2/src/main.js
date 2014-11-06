@@ -21,17 +21,17 @@ LineItem.prototype.PromotionAmount = function() {
 }
 
 LineItem.prototype.format = function() {
-  var string = "名称:"+this.name+
-               ",数量:"+this.amount+this.unit+
-               ",单价:"+this.price.toFixed(2)+"(元)"+
-               ",小计:"+this.TotalPrice().toFixed(2)+"(元)";
+  var string = "名称："+this.name+
+               "，数量："+this.amount+this.unit+
+               "，单价："+this.price.toFixed(2)+"(元)"+
+               "，小计："+this.TotalPrice().toFixed(2)+"(元)";
   return string;
 }
 
 LineItem.prototype.format_promotion = function () {
   if (this.promotion == 1) {
-    var string = "名称:"+this.name+
-             ",数量:"+this.pro_amount;
+    var string = "名称："+this.name+
+             "，数量："+this.pro_amount+this.unit;
     return string;
   }
   return 0;
@@ -98,19 +98,19 @@ shopping_cart.prototype.total_price = function() {
     totalPrice += this.collection[i].TotalPrice();
     savePrice += this.collection[i].SavePrice();
   }
-  string = "总计:"+totalPrice.toFixed(2)+"\n"+
-           "节省:"+savePrice.toFixed(2)+"\n";
+  string = "总计："+totalPrice.toFixed(2)+"(元)\n"+
+           "节省："+savePrice.toFixed(2)+"(元)\n";
   return string;
 }
 
-function GetInput() {
+function printInventory() {
   var cart = new shopping_cart();
   var new_item = new LineItem();
   for (var i=0;i<inputs.length;i++) {
     new_item = CompareItem(inputs[i]);
     cart.compare(new_item);
   }
-  PrintOut(cart);
+  printOut(cart);
 }
 
 function CompareItem(input) {
@@ -130,24 +130,24 @@ function CompareItem(input) {
   return new_item;
 }
 
-function PrintOut(cart) {
+function printOut(cart) {
   var string = "***<没钱赚商店>购物清单***\n"+
-               "打印时间:"+GetTime()+
+               "打印时间："+GetTime()+
                "----------------------\n"+
                cart.print()+
                "----------------------\n"+
-               "挥泪赠送商品:\n"+
+               "挥泪赠送商品：\n"+
                cart.print_promotion()+
                "----------------------\n"+
                cart.total_price()+
-               "**************************";
+               "**********************";
   console.log(string);
 }
 
 function GetTime() {
   var myDate = new Date();
   var DateString = TimeToString(myDate.getFullYear())+"年"+
-                   TimeToString(myDate.getMonth())+"月"+
+                   TimeToString(myDate.getMonth()+1)+"月"+
                    TimeToString(myDate.getDate())+"日 "+
                    TimeToString(myDate.getHours())+":"+
                    TimeToString(myDate.getMinutes())+":"+
@@ -170,4 +170,4 @@ var inputs = [
               'ITEM000005',
               'ITEM000005'
               ];
-GetInput();
+printInventory();
