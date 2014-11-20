@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="posv1_TDD:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/posv1_TDD_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="posv1_TDD/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="posv1_TDD" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -1,112 +1,156 @@
-//TODO: Please write code in this file.
 function printInventory(inputs) {
-  var itemMan=new ItemManager(loadAllItems());
-  var myPrinter=new Printer();
-  myPrinter.printTicket(itemMan.getPrintMessage(inputs));
+    var itemCart = new ItemsInCart();
+    getInputs(inputs,itemCart);
+    itemCart.getPromotions();
+    printResult(itemCart);
 }
-function Printer(){
-  this.title = '***<没钱赚商店>购物清单***\n';
-  this.separater = '----------------------\n';
-  this.end = '**********************';
-  this.saveTitle = '挥泪赠送商品：\n' ;
-  this.printTicket = function(printInfo){
-    var printMessage=this.title;
-    printInfo[0].forEach(function(element){
-      printMessage+=element;
+
+function getInputs(inputs,itemCart) {
+    inputs.forEach(function (element) {
+        if (inputCompare(element)) {
+            itemCart.addItems(inputCompare(element));
+        }
     });
-    printMessage+=this.separater;
-    printMessage+=this.saveTitle;
-    printInfo[1].forEach(function(element){
-      printMessage+=element;
+}
+
+function inputCompare(input) {
+    var allItems = loadAllItems();
+    var result = false;
+    var count = 1;
+    if (input.indexOf("-")!=-1) {
+        count = input.substring(input.indexOf("-")+1);
+        input = input.substring(0,input.indexOf("-"));
+    }
+    allItems.forEach(function(element) {
+        var item = new Item(element);
+        if (item.compare(input,count)) {
+            result = item;
+            return result;
+        }
     });
-    printMessage+=this.separater;
-    printMessage=printMessage+"总计："+printInfo[2].toFixed(2)+"(元)\n";
-    printMessage=printMessage+"节省："+printInfo[3].toFixed(2)+"(元)\n"
-    printMessage+=this.end;
-    console.log(printMessage);
-  }
+    return result;
 }
-function ItemManager(allItems){
-  this.itemList=allItems;
-  this.promotionList=loadPromotions();
-  this.getPrintMessage = function(inputs){
-    var DetailedItems=this.getDetailInfo(this.parsedInput(inputs));
-    var proType = 'BUY_TWO_GET_ONE_FREE';
-    var proCodeArray=this.getPromotion(proType,this.promotionList);
-    DetailedItems.forEach(function(element){
-      element.getSavecount(proCodeArray);
+
+function printResult(itemCart){
+    var title = "***<没钱赚商店>购物清单***\n";
+    var divider = "----------------------\n";
+    var promotionTitle = "挥泪赠送商品：\n";
+    var endingLine = "**********************";
+    var result = title+itemCart.print()+divider+
+        promotionTitle+itemCart.printPromotions()+divider+
+        itemCart.getTotalPrice()+endingLine;
+    console.log(result);
+}
+
+function Item(element) {
+    this.barcode = element.barcode;
+    this.name = element.name;
+    this.unit = element.unit;
+    this.price = element.price;
+    this.amount = 0;
+    this.saveAmount = 0;
+}
+
+Item.prototype.totalPrice = function () {
+    return this.price*(this.amount-this.saveAmount);
+}
+
+Item.prototype.savePrice = function () {
+    return (this.price*this.saveAmount);
+}
+
+Item.prototype.compare = function(input,count){
+    if (input == this.barcode) {
+        this.amount = count;
+        return true;
+    }
+    return false;
+}
+
+Item.prototype.check = function (inputItem) {
+    if (inputItem.barcode == this.barcode) {
+        this.amount++;
+        return true;
+    }
+    return false;
+}
+
+Item.prototype.getPromotion = function () {
+    var allPromotions = loadPromotions()[0].barcodes;
+    for (var index in allPromotions) {
+        if (this.barcode == allPromotions[index]) {
+            this.saveAmount = parseInt(this.amount/3);
+            break;
+        }
+    }
+    return this.saveAmount;
+}
+
+Item.prototype.printResult = function() {
+    var string = "名称："+this.name+"，数量："+this.amount+this.unit+
+        "，单价："+this.price.toFixed(2)+"(元)，小计："+
+        this.totalPrice().toFixed(2)+"(元)\n";
+    return string;
+}
+
+Item.prototype.printPromotionResult = function() {
+    var string = "";
+    if (this.saveAmount) {
+        string = "名称："+this.name+"，数量："+this.saveAmount+this.unit+"\n";
+    }
+    return string;
+}
+
+function ItemsInCart(){
+    this.items=[];
+}
+
+ItemsInCart.prototype.getLength = function(){
+    return this.items.length;
+}
+
+ItemsInCart.prototype.addItems = function(item){
+    var result = false;
+    if (this.getLength()) {
+        this.items.forEach(function(element) {
+            if (element.check(item))
+                result = true;
+        });
+    }
+    if (!result)
+        this.items.push(item);
+}
+
+ItemsInCart.prototype.getPromotions = function() {
+    this.items.forEach(function(element){
+        element.getPromotion();
     });
-  return this.processTicketInfo(DetailedItems);
-  }
 }
-ItemManager.prototype.parsedInput = function(inputs){
-  var outArray = {};
-  inputs.forEach(function(elements){
-  var temp=elements.split("-");
-    if(!temp[1]){
-      outArray[elements] = outArray[elements] + 1 || 1;
-    }
-    else{
-     outArray[temp[0]] = outArray[temp[0]] + parseInt(temp[1]) || parseInt(temp[1]);
-    }
-  });
-  return outArray;
+
+ItemsInCart.prototype.print = function () {
+    var string = "";
+    this.items.forEach(function(element){
+        string += element.printResult();
+    });
+    return string;
 }
-ItemManager.prototype.getPromotion = function(proType,promotions){
-  for(var index in promotions)
-    if(promotions[index].type == proType)
-      return promotions[index].barcodes;
+
+ItemsInCart.prototype.printPromotions = function () {
+    var string = "";
+    this.items.forEach(function(element){
+        string += element.printPromotionResult();
+    });
+    return string;
 }
-ItemManager.prototype.getDetailInfo=function(parsedInputs){
-  var detailedArray=[];
-  for(var item in parsedInputs)
-    {
-      var buyitem=new DetailedItem(searchitem(item,this.itemList),parsedInputs[item]);
-      detailedArray.push(buyitem);
-    }
-  return detailedArray;
+
+ItemsInCart.prototype.getTotalPrice = function(){
+    var totalPrice = 0;
+    var savePrice = 0;
+    this.items.forEach(function (element) {
+        totalPrice += element.totalPrice();
+        savePrice += element.savePrice();
+    });
+    var string = "总计："+totalPrice.toFixed(2)+"(元)\n"+"节省："+savePrice.toFixed(2)+"(元)\n";
+    return string;
 }
-ItemManager.prototype.processTicketInfo=function(DetailedItems){
-  var costMessage=[];
-  var saveMessage=[];
-  var totalCost=0;
-  var totalSave=0;
-  DetailedItems.forEach(function(element){
-    var cost=element.price*(element.itemCount-
-    element.saveCount);
-    totalCost+=cost;
-    costMessage.push("名称："+element.name+"，数量："+
-      element.itemCount+element.unit+"，单价："+
-      element.price.toFixed(2)+"(元)，小计："+cost.toFixed(2)+"(元)\n");
-    if(element.saveCount){
-      totalSave+=element.price*element.saveCount;
-      saveMessage.push("名称："+element.name+"，数量："+
-      element.saveCount+element.unit+"\n");
-    }
-  });
-  return [costMessage,saveMessage,totalCost,totalSave];
-}
-function DetailedItem(item,itemCount){
-  this.barcode = item.barcode;
-  this.name = item.name;
-  this.unit = item.unit;
-  this.price = item.price || 0.00;
-  this.itemCount = itemCount;
-  this.saveCount = 0;
-  this.getSavecount = function(Probarcodes){
-    if(contains(this.barcode,Probarcodes))
-        this.saveCount=this.itemCount-this.itemCount%3-Math.floor(this.itemCount/3)*2;
-  }
-}
-function searchitem(barcode,itemArray){
-    for(var i in itemArray)
-      if(itemArray[i].barcode===barcode)
-            return itemArray[i];
-}
-function contains( checkitem ,srcArray)
-{
-  for(var i in srcArray)
-    if(srcArray[i]===checkitem)
-      return true;
-  return false;
-}
+
